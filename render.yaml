@@ -2,9 +2,10 @@ services:
   - type: web
     name: info-digest
     runtime: python
-    pythonVersion: "3.11.0"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: KIMI_API_KEY
         sync: false
