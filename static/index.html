@@ -1970,18 +1970,20 @@ async function checkShowWizard() {
   } catch(e) { /* 静默，不阻断主界面加载 */ }
 }
 
-// ──────────── 页面加载时静默抓取 ────────────
+// ──────────── 页面加载时静默抓取 + 摘要 ────────────
 async function silentFetchAll() {
   try {
-    // 调用后台接口，立即返回不阻塞
     await api('/feeds/fetch-all-bg', { method: 'POST' });
-    // 30 秒后刷新文章列表（后台抓取需要时间）
-    setTimeout(async () => {
-      const before = document.querySelectorAll('.article-card').length;
-      await loadArticles();
-      const after = document.querySelectorAll('.article-card').length;
-      if (after > before) showToast(`🆕 已更新新文章`, 'success');
-    }, 30000);
+    // 每 15 秒刷新一次文章列表，持续 3 分钟（抓取+摘要都需要时间）
+    let checks = 0;
+    const maxChecks = 12;
+    const timer = setInterval(async () => {
+      checks++;
+      try {
+        await loadArticles();
+      } catch(e) {}
+      if (checks >= maxChecks) clearInterval(timer);
+    }, 15000);
   } catch(e) { /* 静默失败，不影响页面 */ }
 }
 

@@ -140,13 +140,25 @@ def api_fetch_feed(
         raise HTTPException(status_code=500, detail=f"抓取失败: {e}")
 
 
+def _fetch_and_summarize(feeds):
+    """后台任务：抓取所有源，然后自动批量摘要"""
+    results = fetch_all_feeds(feeds)
+    total_new = sum(r.get("new_articles", 0) for r in results if "new_articles" in r)
+    if total_new > 0:
+        print(f"  [自动摘要] 抓取到 {total_new} 篇新文章，开始批量摘要...")
+        try:
+            summarize_batch(limit=total_new, level="standard")
+        except Exception as e:
+            print(f"  [自动摘要] 失败: {e}")
+
+
 @app.post("/feeds/fetch-all-bg", summary="后台抓取所有订阅源（立即返回）")
 async def api_fetch_all_bg(background_tasks: BackgroundTasks):
-    """立即返回，在后台触发抓取，不阻塞请求"""
+    """立即返回，在后台触发抓取 + 自动摘要，不阻塞请求"""
     feeds = list_feeds()
     if not feeds:
         return {"message": "没有订阅源"}
-    background_tasks.add_task(fetch_all_feeds, feeds)
+    background_tasks.add_task(_fetch_and_summarize, feeds)
     return {"message": f"已在后台触发抓取 {len(feeds)} 个订阅源"}
 
 
