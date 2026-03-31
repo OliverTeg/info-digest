@@ -981,26 +981,19 @@ async function loadArticles() {
     if (currentFeedFilter) url += `&feed_id=${currentFeedFilter}`;
     const articles = await api(url);
 
-    // 只保留已摘要的文章
-    const summarized = articles.filter(a => a.ai_summary_zh && a.ai_summary_zh.trim());
+    // 显示所有文章（无论是否有 AI 摘要）
+    const summarized = articles;
 
     loading.style.display = 'none';
 
     if (summarized.length === 0) {
       empty.style.display = 'block';
-      // 如果有文章但都未摘要，给不同提示
       const emptyIcon = document.querySelector('#articles-empty .icon');
       const emptyTitle = document.querySelector('#articles-empty h3');
       const emptyDesc = document.querySelector('#articles-empty p');
-      if (articles.length > 0) {
-        emptyIcon.textContent = '⏳';
-        emptyTitle.textContent = '摘要正在生成中';
-        emptyDesc.textContent = `共 ${articles.length} 篇文章，AI 摘要生成完成后将自动显示`;
-      } else {
-        emptyIcon.textContent = '📭';
-        emptyTitle.textContent = '还没有文章';
-        emptyDesc.textContent = '请先在"订阅管理"添加 RSS 源并点击抓取';
-      }
+      emptyIcon.textContent = '📭';
+      emptyTitle.textContent = '还没有文章';
+      emptyDesc.textContent = '请先在"订阅管理"添加 RSS 源并点击抓取';
       return;
     }
 
@@ -1027,12 +1020,12 @@ async function loadArticles() {
         </div>
         <div class="card-title">${escHtml(displayTitle || '无标题')}${paywallBadge}</div>
         ${hasTranslation ? `<div style="font-size:11px;color:var(--text-light);margin:-4px 0 6px;opacity:0.7">${escHtml(a.title)}</div>` : ''}
-        <div class="card-summary">${escHtml(a.ai_summary_zh)}</div>
+        <div class="card-summary">${escHtml(a.ai_summary_zh || a.summary || '')}</div>
         <div class="card-footer">
           <div class="card-keywords">
             ${keywords.map(k => `<span>${escHtml(k.trim())}</span>`).join('')}
           </div>
-          <span style="color:var(--success);font-size:12px">✓ AI 摘要</span>
+          ${(a.ai_summary_zh && a.ai_summary_zh.trim()) ? '<span style="color:var(--success);font-size:12px">✓ AI 摘要</span>' : '<span style="color:var(--text-light);font-size:12px">原文</span>'}
         </div>
       `;
       container.appendChild(card);
