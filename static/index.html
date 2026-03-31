@@ -1256,52 +1256,53 @@ async function fetchAllFeeds() {
 
   if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
   progressContainer.classList.add('active');
-  progressFill.style.width = '10%';
-  progressText.textContent = '正在抓取文章...';
+  progressFill.style.width = '5%';
+  progressText.textContent = '正在后台抓取文章，请稍候...';
   progressCount.textContent = '';
 
   try {
-    // 第一步：抓取
-    const fetchRes = await api('/feeds/fetch-all?auto_summarize=false', { method: 'POST' });
-    const totalNew = fetchRes.results?.reduce((s, r) => s + (r.new_articles || 0), 0) || 0;
+    // 触发后台抓取，立即返回
+    await api('/feeds/fetch-all-bg', { method: 'POST' });
 
-    // 抓取失败提醒
-    const errors = fetchRes.errors || fetchRes.results?.filter(r => r.error) || [];
-    if (errors.length > 0) {
-      const names = errors.map(e => e.feed_title || `ID:${e.feed_id}`).join('、');
-      showToast(`⚠️ ${errors.length} 个源抓取失败：${names}`, 'error');
-    }
+    // 记录抓取前的文章数
+    const statsBefore = await api('/articles/summary-stats');
+    const totalBefore = statsBefore.total || 0;
 
-    if (totalNew === 0) {
-      progressText.textContent = errors.length ? '抓取失败，没有新文章' : '没有新文章';
+    // 轮询，每 5 秒检查一次文章数是否增加，最多等 90 秒
+    let elapsed = 0;
+    const maxWait = 90000;
+    const interval = 5000;
+    progressFill.style.width = '15%';
+
+    await new Promise(resolve => {
+      const timer = setInterval(async () => {
+        elapsed += interval;
+        const pct = Math.min(15 + Math.round((elapsed / maxWait) * 75), 90);
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `后台抓取中... (${Math.round(elapsed/1000)}s)`;
+
+        try {
+          const stats = await api('/articles/summary-stats');
+          if (stats.total > totalBefore) {
+            clearInterval(timer);
+            resolve(stats.total - totalBefore);
+          }
+        } catch(e) {}
+
+        if (elapsed >= maxWait) { clearInterval(timer); resolve(0); }
+      }, interval);
+    }).then(async (newCount) => {
       progressFill.style.width = '100%';
-      if (!errors.length) showToast('没有新文章', 'info');
-      setTimeout(() => progressContainer.classList.remove('active'), 2000);
+      if (newCount > 0) {
+        progressText.textContent = `完成！新增 ${newCount} 篇文章`;
+        showToast(`✅ 抓取完成，新增 ${newCount} 篇`, 'success');
+      } else {
+        progressText.textContent = '没有新文章';
+        showToast('没有新文章', 'info');
+      }
       loadArticles();
-      return;
-    }
-
-    // 第二步：分批摘要，直到全部完成
-    progressText.textContent = `抓取到 ${totalNew} 篇新文章，正在生成摘要...`;
-    progressFill.style.width = '20%';
-
-    let done = 0;
-    while (done < totalNew) {
-      const res = await api(`/articles/summarize-batch?limit=5`, { method: 'POST' });
-      const batchDone = res.results?.length || 0;
-      if (batchDone === 0) break;
-      done += batchDone;
-      const pct = 20 + Math.min(Math.round((done / totalNew) * 78), 78);
-      progressFill.style.width = pct + '%';
-      progressText.textContent = `正在生成摘要 ${done}/${totalNew}...`;
-      progressCount.textContent = `${done}/${totalNew}`;
-    }
-
-    progressFill.style.width = '100%';
-    progressText.textContent = `完成！${totalNew} 篇文章已就绪`;
-    showToast(`✅ 抓取并摘要完成，共 ${totalNew} 篇`, 'success');
-    setTimeout(() => progressContainer.classList.remove('active'), 2500);
-    loadArticles();
+      setTimeout(() => progressContainer.classList.remove('active'), 2500);
+    });
 
   } catch (e) {
     progressText.textContent = '出错了';
