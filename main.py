@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from pathlib import Path
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
@@ -138,6 +138,16 @@ def api_fetch_feed(
         return {"message": "抓取完成", "result": fetch_result, "summary": summary_result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"抓取失败: {e}")
+
+
+@app.post("/feeds/fetch-all-bg", summary="后台抓取所有订阅源（立即返回）")
+async def api_fetch_all_bg(background_tasks: BackgroundTasks):
+    """立即返回，在后台触发抓取，不阻塞请求"""
+    feeds = list_feeds()
+    if not feeds:
+        return {"message": "没有订阅源"}
+    background_tasks.add_task(fetch_all_feeds, feeds)
+    return {"message": f"已在后台触发抓取 {len(feeds)} 个订阅源"}
 
 
 @app.post("/feeds/fetch-all", summary="立即抓取所有订阅源")

@@ -1979,12 +1979,15 @@ async function checkShowWizard() {
 // ──────────── 页面加载时静默抓取 ────────────
 async function silentFetchAll() {
   try {
-    const res = await api('/feeds/fetch-all?auto_summarize=false', { method: 'POST' });
-    const totalNew = res.results?.reduce((s, r) => s + (r.new_articles || 0), 0) || 0;
-    if (totalNew > 0) {
-      showToast(`🆕 已更新 ${totalNew} 篇新文章`, 'success');
-      loadArticles();
-    }
+    // 调用后台接口，立即返回不阻塞
+    await api('/feeds/fetch-all-bg', { method: 'POST' });
+    // 30 秒后刷新文章列表（后台抓取需要时间）
+    setTimeout(async () => {
+      const before = document.querySelectorAll('.article-card').length;
+      await loadArticles();
+      const after = document.querySelectorAll('.article-card').length;
+      if (after > before) showToast(`🆕 已更新新文章`, 'success');
+    }, 30000);
   } catch(e) { /* 静默失败，不影响页面 */ }
 }
 
