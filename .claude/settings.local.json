@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew install:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(/opt/homebrew/bin/brew install:*)",
+      "Bash(curl -sI \"https://www.cpolar.com/static/downloads/cpolar-stable-darwin-arm64.zip\")",
+      "Bash(curl -sL https://www.cpolar.com/static/downloads/install-release-cpolar.sh)",
+      "Bash(cargo --version)"
+    ]
+  }
+}

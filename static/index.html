@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Information Digest</title>
+  <style>
+    :root {
+      --primary: #f97316;
+      --primary-light: #fff7ed;
+      --primary-dark: #ea580c;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ──── 顶部导航 ──── */
+    .navbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .navbar-brand .icon { font-size: 26px; }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-light);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover { background: var(--primary-light); color: var(--primary); }
+    .nav-tab.active { background: var(--primary); color: white; }
+
+    /* ──── 工具栏 ──── */
+    .toolbar {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text-light);
+      font-size: 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .toolbar-right { display: flex; gap: 8px; }
+
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ──── 摘要细致度选择器 ──── */
+    .level-selector { display: flex; align-items: center; gap: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px 3px 10px; }
+    .level-label { font-size: 12px; color: var(--text-light); margin-right: 4px; white-space: nowrap; }
+    .level-btn { padding: 3px 10px; border: none; background: transparent; border-radius: 6px; font-size: 12px; cursor: pointer; color: var(--text-light); transition: all 0.15s; }
+    .level-btn:hover { background: var(--primary-light); color: var(--primary); }
+    .level-btn.active { background: var(--primary); color: white; font-weight: 600; }
+
+    /* ──── 付费墙标记 ──── */
+    .badge-paywall { display: inline-block; font-size: 10px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+
+    /* ──── 卡片网格 ──── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .card-feed {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-feed-name {
+      background: var(--primary-light);
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-summary {
+      font-size: 14px;
+      color: var(--text-light);
+      line-height: 1.6;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .card-keywords span {
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 4px;
+      font-size: 11px;
+    }
+
+    .reading-time { white-space: nowrap; }
+
+    .card-unread { border-left: 3px solid var(--primary); }
+
+    /* ──── 文章详情模态框 ──── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius);
+      max-width: 720px;
+      width: 100%;
+      padding: 32px;
+      position: relative;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      border: none;
+      background: #f1f5f9;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover { background: #e2e8f0; }
+
+    .modal-feed { color: var(--primary); font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+
+    .modal-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-section { margin-bottom: 20px; }
+    .modal-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-summary {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--primary-light);
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .modal-original {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-light);
+    }
+
+    .modal-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 16px;
+    }
+
+    .modal-link:hover { text-decoration: underline; }
+
+    .modal-keywords {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .modal-keywords span {
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    /* ──── 订阅管理页 ──── */
+    .feeds-page { display: none; }
+
+    /* ──── RSSHub 发现区 ──── */
+    .discover-section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .discover-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .discover-desc { font-size: 13px; color: var(--text-light); margin-bottom: 14px; }
+    .discover-search-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .discover-search-row input {
+      flex: 1; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 14px; outline: none; transition: border 0.2s;
+    }
+    .discover-search-row input:focus { border-color: var(--primary); }
+    .route-results { display: flex; flex-direction: column; gap: 10px; max-height: 520px; overflow-y: auto; }
+    .route-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+    .route-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .route-site { font-weight: 700; font-size: 14px; }
+    .route-cat { font-size: 11px; background: var(--primary-light); color: var(--primary-dark); padding: 2px 10px; border-radius: 12px; }
+    .route-desc { font-size: 12px; color: var(--text-light); margin-bottom: 10px; }
+    .route-list { display: flex; flex-direction: column; gap: 8px; }
+    .route-item { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+    .route-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .route-param-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+    .route-param-row label { font-size: 12px; color: var(--text-light); white-space: nowrap; }
+    .route-param-input { flex: 1; min-width: 120px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; outline: none; }
+    .route-param-input:focus { border-color: var(--primary); }
+    .route-hint { font-size: 11px; color: #94a3b8; margin-bottom: 6px; font-style: italic; }
+    .route-example { font-size: 11px; color: #94a3b8; font-family: monospace; margin-bottom: 8px; }
+    .route-add-btn { padding: 5px 14px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+    .route-add-btn:hover { background: var(--primary-dark); }
+    /* 原生 RSS 样式 */
+    .route-item-native { background: #f0fdf4; border-color: #86efac; }
+    .badge-native { display: inline-block; font-size: 10px; font-weight: 700; background: #16a34a; color: white; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+    .badge-rsshub { display: inline-block; font-size: 10px; font-weight: 600; background: #e0e7ff; color: #4338ca; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+    .route-url-preview { font-size: 10px; color: #64748b; font-family: monospace; margin-bottom: 8px; word-break: break-all; opacity: 0.8; }
+    .route-add-native { background: #16a34a; }
+    .route-add-native:hover { background: #15803d; }
+    .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .cat-tab { padding: 4px 14px; border: 1px solid var(--border); background: white; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+    .cat-tab:hover, .cat-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .no-results { text-align: center; padding: 24px; color: var(--text-light); font-size: 13px; }
+
+    .feed-form {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .feed-form input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .feed-form input:focus { border-color: var(--primary); }
+
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feed-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .feed-item:hover { border-color: var(--primary); }
+
+    .feed-info h3 { font-size: 15px; font-weight: 600; }
+    .feed-info p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+
+    .feed-actions { display: flex; gap: 8px; }
+
+    /* ──── 编辑弹窗 ──── */
+    .edit-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      justify-content: center;
+      align-items: center;
+    }
+    .edit-modal.active { display: flex; }
+    .edit-modal-box {
+      background: white;
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 480px;
+      max-width: 95vw;
+      position: relative;
+      animation: slideUp 0.25s ease;
+    }
+    .edit-modal-box h3 { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+    .edit-field { margin-bottom: 14px; }
+    .edit-field label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500; }
+    .edit-field input {
+      width: 100%; padding: 9px 13px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 14px; outline: none; transition: border 0.2s;
+    }
+    .edit-field input:focus { border-color: var(--primary); }
+    .edit-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+    /* ──── 空状态 ──── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+
+    /* ──── 提示条 ──── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      z-index: 300;
+      animation: slideIn 0.3s ease;
+      display: none;
+    }
+
+    .toast.show { display: block; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.info { background: var(--primary); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ──── 加载动画 ──── */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ──── 进度条 ──── */
+    .progress-bar-container {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto 16px;
+      padding: 0 24px;
+    }
+
+    .progress-bar-container.active { display: block; }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    /* ──── 响应式 ──── */
+    @media (max-width: 640px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .navbar { padding: 0 16px; }
+      .container { padding: 0 16px 40px; }
+      .modal { padding: 20px; }
+    }
+
+    /* ════════════════════════════════
+       向导（Onboarding Wizard）样式
+    ════════════════════════════════ */
+    .wizard-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e3a5f 100%);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 1; transition: opacity 0.5s;
+    }
+    .wizard-overlay.fade-out { opacity: 0; pointer-events: none; }
+    .wizard-box {
+      background: white; border-radius: 20px; width: 900px; max-width: 96vw;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+      overflow: hidden; position: relative;
+      display: flex; flex-direction: column; max-height: 90vh;
+    }
+    .wizard-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      padding: 28px 32px 20px; color: white;
+      flex-shrink: 0;
+    }
+    .wizard-header h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+    .wizard-header p  { font-size: 13px; opacity: 0.85; margin: 0; }
+    .wizard-progress { display: flex; gap: 6px; margin-top: 16px; }
+    .wizard-dot { height: 4px; border-radius: 2px; flex: 1; background: rgba(255,255,255,0.3); transition: background 0.3s; }
+    .wizard-dot.active { background: white; }
+    .wizard-dot.done   { background: rgba(255,255,255,0.7); }
+    .wizard-body { padding: 28px 32px; min-height: 280px; flex: 1; overflow-y: auto; }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: fadeSlide 0.3s ease; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+    .wizard-label { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .wizard-title { font-size: 20px; font-weight: 800; color: var(--text); margin: 0 0 20px; }
+    .wizard-input {
+      width: 100%; padding: 11px 14px; border: 2px solid var(--border); border-radius: 10px;
+      font-size: 15px; outline: none; transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .wizard-input:focus { border-color: var(--primary); }
+    /* 选项芯片 */
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 7px 16px; border: 2px solid var(--border); border-radius: 20px;
+      font-size: 13px; cursor: pointer; transition: all 0.15s; user-select: none;
+      background: white; color: var(--text);
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); }
+    .chip.selected { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
+    /* 底部按钮 */
+    .wizard-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px 24px; border-top: 1px solid var(--border);
+      background: white; flex-shrink: 0;
+    }
+    .wizard-btn-back { background: none; border: none; color: var(--text-light); font-size: 13px; cursor: pointer; padding: 8px; }
+    .wizard-btn-back:hover { color: var(--text); }
+    .wizard-btn-next {
+      padding: 10px 28px; background: var(--primary); color: white; border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .wizard-btn-next:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .wizard-btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    /* 推荐结果 */
+    .recommend-greeting {
+      font-size: 17px; font-weight: 700; color: var(--primary);
+      margin-bottom: 20px; line-height: 1.4;
+    }
+    #recommend-bundles {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .recommend-bundle { margin-bottom: 0; }
+    .recommend-bundle-title {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+    }
+    .recommend-bundle-reason { font-size: 12px; color: var(--text-light); margin-bottom: 10px; }
+    .recommend-feed-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+    .recommend-feed-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .recommend-feed-item:hover { border-color: var(--primary); background: var(--primary-light); }
+    .recommend-feed-item.checked { border-color: var(--success); background: #f0fdf4; }
+    .recommend-feed-check { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .recommend-feed-item.checked .recommend-feed-check { background: var(--success); border-color: var(--success); color: white; }
+    .recommend-feed-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .recommend-feed-reason { font-size: 11px; color: var(--text-light); }
+    .recommend-select-all { font-size: 12px; color: var(--primary); cursor: pointer; margin-bottom: 8px; display: inline-block; }
+    .recommend-select-all:hover { text-decoration: underline; }
+    .wizard-loading { text-align: center; padding: 40px 0; }
+    .wizard-loading .spinner { width: 40px; height: 40px; border: 4px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    .wizard-loading p { color: var(--text-light); font-size: 14px; }
+    .wizard-skip { font-size: 12px; color: var(--text-light); cursor: pointer; text-decoration: underline; }
+    .wizard-skip:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════ 注册向导（首次启动自动弹出） ═══════ -->
+  <div id="wizard-overlay" class="wizard-overlay" style="display:none">
+    <div class="wizard-box">
+      <div class="wizard-header">
+        <h1>📰 Information Digest</h1>
+        <p>告诉我们一点关于你的信息，我们为你定制专属信息流</p>
+        <div class="wizard-progress" id="wizard-progress"></div>
+      </div>
+      <div class="wizard-body">
+
+        <!-- Step 1: 姓名 -->
+        <div class="wizard-step active" id="step-1">
+          <div class="wizard-label">Step 1 / 4</div>
+          <div class="wizard-title">你好，怎么称呼你？</div>
+          <input class="wizard-input" id="w-name" type="text" placeholder="你的名字或昵称" maxlength="20"
+                 oninput="wizardValidate()">
+        </div>
+
+        <!-- Step 2: 职业 -->
+        <div class="wizard-step" id="step-2">
+          <div class="wizard-label">Step 2 / 4</div>
+          <div class="wizard-title">你目前的职业是？</div>
+          <div class="chip-grid" id="profession-chips">
+            <div class="chip" onclick="selectProfession(this)">学生</div>
+            <div class="chip" onclick="selectProfession(this)">软件工程师 / 开发者</div>
+            <div class="chip" onclick="selectProfession(this)">产品经理</div>
+            <div class="chip" onclick="selectProfession(this)">设计师</div>
+            <div class="chip" onclick="selectProfession(this)">创业者 / CEO</div>
+            <div class="chip" onclick="selectProfession(this)">投资人 / 分析师</div>
+            <div class="chip" onclick="selectProfession(this)">研究员 / 学者</div>
+            <div class="chip" onclick="selectProfession(this)">媒体 / 内容创作者</div>
+            <div class="chip" onclick="selectProfession(this)">其他</div>
+          </div>
+          <input class="wizard-input" id="w-profession-custom" type="text"
+                 placeholder="或直接输入你的职业..."
+                 style="margin-top:12px" oninput="wizardValidate()">
+        </div>
+
+        <!-- Step 3: 兴趣 -->
+        <div class="wizard-step" id="step-3">
+          <div class="wizard-label">Step 3 / 4</div>
+          <div class="wizard-title">你最感兴趣的领域？<small style="font-weight:400;font-size:14px">（可多选）</small></div>
+          <div class="chip-grid" id="interest-chips">
+            <div class="chip" onclick="toggleChip(this)">🤖 人工智能</div>
+            <div class="chip" onclick="toggleChip(this)">💻 编程与开发</div>
+            <div class="chip" onclick="toggleChip(this)">🚀 创业与产品</div>
+            <div class="chip" onclick="toggleChip(this)">💰 投资与财经</div>
+            <div class="chip" onclick="toggleChip(this)">🌍 国际时事</div>
+            <div class="chip" onclick="toggleChip(this)">🔬 科学与学术</div>
+            <div class="chip" onclick="toggleChip(this)">📱 科技媒体</div>
+            <div class="chip" onclick="toggleChip(this)">🎬 生活与娱乐</div>
+            <div class="chip" onclick="toggleChip(this)">🏛️ 社会与文化</div>
+          </div>
+        </div>
+
+        <!-- Step 4: 目标 -->
+        <div class="wizard-step" id="step-4">
+          <div class="wizard-label">Step 4 / 4</div>
+          <div class="wizard-title">订阅这些信息是为了？<small style="font-weight:400;font-size:14px">（可多选）</small></div>
+          <div class="chip-grid" id="goal-chips">
+            <div class="chip" onclick="toggleChip(this)">保持行业前沿认知</div>
+            <div class="chip" onclick="toggleChip(this)">学习新技术 / 技能</div>
+            <div class="chip" onclick="toggleChip(this)">追踪市场与投资机会</div>
+            <div class="chip" onclick="toggleChip(this)">学术研究与文献追踪</div>
+            <div class="chip" onclick="toggleChip(this)">提升商业洞察力</div>
+            <div class="chip" onclick="toggleChip(this)">了解国际时事动态</div>
+            <div class="chip" onclick="toggleChip(this)">内容创作素材积累</div>
+            <div class="chip" onclick="toggleChip(this)">日常休闲阅读</div>
+          </div>
+          <input class="wizard-input" id="w-custom-note" type="text"
+                 placeholder="其他补充说明（可选）..."
+                 style="margin-top:14px">
+        </div>
+
+        <!-- Step 5: AI 推荐结果 -->
+        <div class="wizard-step" id="step-5">
+          <div id="recommend-loading" class="wizard-loading">
+            <div class="spinner"></div>
+            <p>AI 正在分析你的画像，生成专属订阅推荐…</p>
+          </div>
+          <div id="recommend-result" style="display:none">
+            <div class="recommend-greeting" id="recommend-greeting"></div>
+            <div id="recommend-bundles"></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="wizard-footer" id="wizard-footer">
+        <button class="wizard-btn-back" id="wizard-back" onclick="wizardBack()" style="visibility:hidden">← 上一步</button>
+        <span class="wizard-skip" onclick="wizardSkip()">跳过，直接进入</span>
+        <button class="wizard-btn-next" id="wizard-next" onclick="wizardNext()">下一步 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="icon">📰</span>
+      <span>Information Digest</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('articles')">文章摘要</button>
+      <button class="nav-tab" onclick="showPage('feeds')">订阅管理</button>
+    </div>
+  </nav>
+
+  <!-- ═══════ 文章页面 ═══════ -->
+  <div id="articles-page">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="filter-btn active" onclick="filterByFeed(null, this)">全部</button>
+        <!-- 动态生成 feed 筛选按钮 -->
+      </div>
+      <div class="toolbar-right">
+        <div class="level-selector" title="AI 摘要细致程度">
+          <span class="level-label">摘要：</span>
+          <button class="level-btn" data-level="concise" onclick="setSummaryLevel('concise', this)">简洁</button>
+          <button class="level-btn active" data-level="standard" onclick="setSummaryLevel('standard', this)">标准</button>
+          <button class="level-btn" data-level="detailed" onclick="setSummaryLevel('detailed', this)">详细</button>
+        </div>
+        <button class="btn btn-outline" onclick="fetchAllFeeds()">🔄 抓取全部</button>
+        <button class="btn btn-primary" onclick="summarizeBatch()">✨ 批量摘要</button>
+        <button class="btn btn-success" onclick="generateDigest()">📋 每日整合</button>
+      </div>
+    </div>
+
+    <div class="progress-bar-container" id="progress-container">
+      <div class="progress-info">
+        <span id="progress-text">正在生成摘要...</span>
+        <span id="progress-count">0/0</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="cards-container" class="cards-grid"></div>
+      <div id="articles-loading" class="loading" style="display:none"><div class="spinner"></div></div>
+      <div id="articles-empty" class="empty-state" style="display:none">
+        <div class="icon">📭</div>
+        <h3>还没有文章</h3>
+        <p>请先添加订阅源并抓取内容</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ 订阅管理页面 ═══════ -->
+  <div id="feeds-page" class="feeds-page">
+    <div class="container" style="margin-top: 24px;">
+
+      <!-- RSSHub 发现区 -->
+      <div class="discover-section">
+        <h3>🔍 发现订阅源</h3>
+        <p class="discover-desc">输入你感兴趣的网站名称（中英文均可），平台自动为你生成可订阅的 RSS 地址，无需手动查找。</p>
+        <div class="discover-search-row">
+          <input type="text" id="rsshub-search" placeholder="搜索网站（如：bilibili、知乎、GitHub、BBC…）"
+                 oninput="debounceRSSSearch(this.value)" onkeydown="if(event.key==='Enter') searchRSSHub()">
+          <button class="btn btn-outline" onclick="searchRSSHub()">搜索</button>
+        </div>
+        <div class="cat-tabs" id="cat-tabs">
+          <!-- 动态生成分类标签 -->
+        </div>
+        <div class="route-results" id="route-results">
+          <div class="no-results" style="color:var(--text-light);font-size:13px;padding:16px 0;">
+            👆 输入网站名搜索，或点击分类浏览
+          </div>
+        </div>
+      </div>
+
+      <!-- 手动添加表单 -->
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:8px;font-weight:500;">手动添加 RSS 地址</div>
+      <div class="feed-form">
+        <input type="text" id="feed-url" placeholder="RSS 地址（如 https://hnrss.org/frontpage）">
+        <input type="text" id="feed-title" placeholder="名称（可选）" style="max-width: 200px;">
+        <input type="text" id="feed-category" placeholder="分类（可选）" style="max-width: 150px;">
+        <button class="btn btn-primary" onclick="addFeed()">＋ 添加</button>
+      </div>
+
+      <div id="feeds-list" class="feed-list"></div>
+      <div id="feeds-empty" class="empty-state" style="display:none">
+        <div class="icon">📡</div>
+        <h3>还没有订阅源</h3>
+        <p>在上方搜索发现订阅源，或直接输入 RSS 地址添加</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ 文章详情弹窗 ═══════ -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-feed" id="modal-feed"></div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <div class="modal-meta" id="modal-meta"></div>
+
+      <div class="modal-section" id="section-ai-zh">
+        <div class="modal-section-title">📝 AI 中文摘要</div>
+        <div class="modal-summary" id="modal-summary-zh"></div>
+      </div>
+
+      <div class="modal-section" id="section-ai-en">
+        <div class="modal-section-title">📝 AI English Summary</div>
+        <div class="modal-summary" id="modal-summary-en" style="background: #f0f9ff; border-color: #3b82f6;"></div>
+      </div>
+
+      <div class="modal-section" id="section-keywords">
+        <div class="modal-section-title">🏷️ 关键词</div>
+        <div class="modal-keywords" id="modal-keywords"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">📄 原文摘要</div>
+        <div class="modal-original" id="modal-original"></div>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
+        <a class="modal-link" id="modal-link" href="#" target="_blank">🔗 阅读原文 →</a>
+        <button class="btn btn-primary" id="modal-summarize-btn" onclick="summarizeSingle()">✨ 生成 AI 摘要</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑订阅源弹窗 -->
+  <div class="edit-modal" id="edit-modal" onclick="closeEditModal(event)">
+    <div class="edit-modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <h3>✏️ 修改订阅源</h3>
+      <input type="hidden" id="edit-feed-id">
+      <div class="edit-field">
+        <label>RSS 地址</label>
+        <input type="text" id="edit-feed-url" placeholder="https://...">
+      </div>
+      <div class="edit-field">
+        <label>名称</label>
+        <input type="text" id="edit-feed-title" placeholder="订阅源名称">
+      </div>
+      <div class="edit-field">
+        <label>分类</label>
+        <input type="text" id="edit-feed-category" placeholder="如：科技、财经、科学">
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-outline" onclick="closeEditModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveEditFeed()">💾 保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示条 -->
+  <div class="toast" id="toast"></div>
+
+<script>
+const API = '';  // 同源，直接用相对路径
+
+let currentFeedFilter = null;
+let currentArticleId = null;
+let feedsMap = {};  // id -> feed info
+
+// ──────────── 页面切换 ────────────
+function showPage(page) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.getElementById('articles-page').style.display = page === 'articles' ? 'block' : 'none';
+  document.getElementById('feeds-page').style.display = page === 'feeds' ? 'block' : 'none';
+
+  if (page === 'articles') loadArticles();
+  if (page === 'feeds') { loadFeeds(); loadRSSHubCategories(); }
+}
+
+// ──────────── 提示 ────────────
+function showToast(msg, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast show ${type}`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ──────────── API 请求 ────────────
+async function api(path, options = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `请求失败 (${res.status})`);
+  }
+  return res.json();
+}
+
+// ──────────── 加载文章（只显示已摘要的） ────────────
+async function loadArticles() {
+  const container = document.getElementById('cards-container');
+  const loading = document.getElementById('articles-loading');
+  const empty = document.getElementById('articles-empty');
+
+  container.innerHTML = '';
+  loading.style.display = 'flex';
+  empty.style.display = 'none';
+
+  try {
+    const feeds = await api('/feeds');
+    feedsMap = {};
+    feeds.forEach(f => feedsMap[f.id] = f);
+    updateFeedFilters(feeds);
+
+    let url = '/articles?limit=200';
+    if (currentFeedFilter) url += `&feed_id=${currentFeedFilter}`;
+    const articles = await api(url);
+
+    // 只保留已摘要的文章
+    const summarized = articles.filter(a => a.ai_summary_zh && a.ai_summary_zh.trim());
+
+    loading.style.display = 'none';
+
+    if (summarized.length === 0) {
+      empty.style.display = 'block';
+      // 如果有文章但都未摘要，给不同提示
+      const emptyIcon = document.querySelector('#articles-empty .icon');
+      const emptyTitle = document.querySelector('#articles-empty h3');
+      const emptyDesc = document.querySelector('#articles-empty p');
+      if (articles.length > 0) {
+        emptyIcon.textContent = '⏳';
+        emptyTitle.textContent = '摘要正在生成中';
+        emptyDesc.textContent = `共 ${articles.length} 篇文章，AI 摘要生成完成后将自动显示`;
+      } else {
+        emptyIcon.textContent = '📭';
+        emptyTitle.textContent = '还没有文章';
+        emptyDesc.textContent = '请先在"订阅管理"添加 RSS 源并点击抓取';
+      }
+      return;
+    }
+
+    summarized.forEach(a => {
+      const feed = feedsMap[a.feed_id] || {};
+      const keywords = a.keywords ? a.keywords.split(',').slice(0, 3) : [];
+      const timeStr = a.published ? new Date(a.published).toLocaleDateString('zh-CN') : '';
+
+      const displayTitle = (a.title_zh && a.title_zh.trim()) ? a.title_zh : a.title;
+      const hasTranslation = a.title_zh && a.title_zh.trim() && a.title_zh !== a.title;
+      const card = document.createElement('div');
+      card.className = `card ${a.is_read ? '' : 'card-unread'}`;
+      card.dataset.id = a.id;
+      card.onclick = () => openArticle(a.id);
+      const paywallBadge = a.is_paywalled
+        ? `<span class="badge-paywall">🔒 内容受限</span>` : '';
+      card.innerHTML = `
+        <div class="card-feed">
+          <span class="card-feed-name">${escHtml(feed.title || feed.category || '未分类')}</span>
+          <span class="card-meta">
+            ${a.reading_time ? `⏱ ${a.reading_time}分钟` : ''}
+            ${timeStr ? ` · ${timeStr}` : ''}
+          </span>
+        </div>
+        <div class="card-title">${escHtml(displayTitle || '无标题')}${paywallBadge}</div>
+        ${hasTranslation ? `<div style="font-size:11px;color:var(--text-light);margin:-4px 0 6px;opacity:0.7">${escHtml(a.title)}</div>` : ''}
+        <div class="card-summary">${escHtml(a.ai_summary_zh)}</div>
+        <div class="card-footer">
+          <div class="card-keywords">
+            ${keywords.map(k => `<span>${escHtml(k.trim())}</span>`).join('')}
+          </div>
+          <span style="color:var(--success);font-size:12px">✓ AI 摘要</span>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  } catch (e) {
+    loading.style.display = 'none';
+    showToast('加载文章失败: ' + e.message, 'error');
+  }
+}
+
+// ──────────── feed 筛选按钮 ────────────
+function updateFeedFilters(feeds) {
+  const toolbar = document.querySelector('.toolbar-left');
+  // "全部" 按钮：当前无筛选时高亮
+  const allActive = currentFeedFilter === null ? ' active' : '';
+  toolbar.innerHTML = `<button class="filter-btn${allActive}" onclick="filterByFeed(null, this)">全部</button>`;
+  feeds.forEach(f => {
+    const btn = document.createElement('button');
+    // 保留当前选中的分类高亮状态
+    btn.className = 'filter-btn' + (currentFeedFilter === f.id ? ' active' : '');
+    btn.textContent = f.title || f.url;
+    btn.onclick = function() { filterByFeed(f.id, this); };
+    toolbar.appendChild(btn);
+  });
+}
+
+function filterByFeed(feedId, btn) {
+  currentFeedFilter = feedId;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  loadArticles();
+}
+
+// ──────────── 打开文章详情 ────────────
+let _savedScrollY = 0;
+
+async function openArticle(id) {
+  _savedScrollY = window.scrollY;   // 保存当前滚动位置
+  currentArticleId = id;
+  try {
+    const a = await api(`/articles/${id}`);
+    const feed = feedsMap[a.feed_id] || {};
+    const hasSummary = a.ai_summary_zh && a.ai_summary_zh.trim();
+
+    const modalTitle = (a.title_zh && a.title_zh.trim()) ? a.title_zh : (a.title || '无标题');
+    const modalSubtitle = (a.title_zh && a.title_zh.trim() && a.title_zh !== a.title) ? a.title : '';
+
+    document.getElementById('modal-feed').textContent = feed.title || feed.category || '未分类';
+    document.getElementById('modal-title').textContent = modalTitle;
+
+    // 原英文标题作为副标题
+    const existingSub = document.getElementById('modal-subtitle');
+    if (existingSub) existingSub.remove();
+    if (modalSubtitle) {
+      const sub = document.createElement('div');
+      sub.id = 'modal-subtitle';
+      sub.style.cssText = 'font-size:13px;color:var(--text-light);margin:-8px 0 12px;font-style:italic;';
+      sub.textContent = modalSubtitle;
+      document.getElementById('modal-title').after(sub);
+    }
+
+    document.getElementById('modal-meta').innerHTML = `
+      ${a.author ? `<span>✍️ ${escHtml(a.author)}</span>` : ''}
+      ${a.published ? `<span>📅 ${new Date(a.published).toLocaleString('zh-CN')}</span>` : ''}
+      ${a.reading_time ? `<span>⏱ 预估阅读 ${a.reading_time} 分钟</span>` : ''}
+    `;
+
+    // AI 摘要部分
+    const sectionZh = document.getElementById('section-ai-zh');
+    const sectionEn = document.getElementById('section-ai-en');
+    const sectionKw = document.getElementById('section-keywords');
+    const summarizeBtn = document.getElementById('modal-summarize-btn');
+
+    if (hasSummary) {
+      sectionZh.style.display = 'block';
+      document.getElementById('modal-summary-zh').textContent = a.ai_summary_zh;
+
+      if (a.ai_summary && a.ai_summary.trim()) {
+        sectionEn.style.display = 'block';
+        document.getElementById('modal-summary-en').textContent = a.ai_summary;
+      } else {
+        sectionEn.style.display = 'none';
+      }
+
+      if (a.keywords && a.keywords.trim()) {
+        sectionKw.style.display = 'block';
+        document.getElementById('modal-keywords').innerHTML =
+          a.keywords.split(',').map(k => `<span>${escHtml(k.trim())}</span>`).join('');
+      } else {
+        sectionKw.style.display = 'none';
+      }
+      summarizeBtn.style.display = 'none';
+    } else {
+      sectionZh.style.display = 'none';
+      sectionEn.style.display = 'none';
+      sectionKw.style.display = 'none';
+      summarizeBtn.style.display = 'inline-flex';
+    }
+
+    document.getElementById('modal-original').textContent = stripHtml(a.summary || a.content || '无内容');
+    document.getElementById('modal-link').href = a.link || '#';
+    document.getElementById('modal-link').style.display = a.link ? 'inline-flex' : 'none';
+
+    document.getElementById('modal-overlay').classList.add('active');
+  } catch (e) {
+    showToast('加载文章详情失败: ' + e.message, 'error');
+  }
+}
+
+function closeModal(event) {
+  if (event && event.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('active');
+  // 恢复关闭弹窗前的滚动位置，避免页面跳回顶部
+  requestAnimationFrame(() => window.scrollTo(0, _savedScrollY));
+  // 静默更新已读状态（移除未读样式，不重绘整个列表）
+  document.querySelectorAll('.card[data-id="' + currentArticleId + '"]')
+    .forEach(c => c.classList.remove('card-unread'));
+}
+
+// ──────────── 单篇 AI 摘要 ────────────
+// ──────────── 摘要细致度 ────────────
+let _summaryLevel = localStorage.getItem('summaryLevel') || 'standard';
+
+function setSummaryLevel(level, btn) {
+  _summaryLevel = level;
+  localStorage.setItem('summaryLevel', level);
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showToast('摘要细致度：' + {'concise':'简洁','standard':'标准','detailed':'详细'}[level], 'info');
+}
+
+// 初始化时恢复保存的级别
+(function initLevelUI() {
+  const saved = localStorage.getItem('summaryLevel') || 'standard';
+  _summaryLevel = saved;
+  // DOM 可能还未加载，用 DOMContentLoaded 保底
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector(`.level-btn[data-level="${saved}"]`);
+    if (btn) {
+      document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  });
+})();
+
+async function summarizeSingle() {
+  const btn = document.getElementById('modal-summarize-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 正在生成摘要...';
+  try {
+    await api(`/articles/${currentArticleId}/summarize?level=${_summaryLevel}`, { method: 'POST' });
+    showToast('摘要生成成功！', 'success');
+    openArticle(currentArticleId);  // 刷新详情
+  } catch (e) {
+    showToast('摘要生成失败: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ 生成 AI 摘要';
+  }
+}
+
+// ──────────── 批量摘要（带进度条） ────────────
+async function summarizeBatch() {
+  // 先查询有多少篇待处理
+  const stats = await api('/articles/summary-stats');
+  if (stats.pending === 0) {
+    showToast('所有文章都已摘要完成！', 'success');
+    return;
+  }
+
+  const total = stats.pending;
+  const progressContainer = document.getElementById('progress-container');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressCount = document.getElementById('progress-count');
+
+  // 显示进度条
+  progressContainer.classList.add('active');
+  progressFill.style.width = '0%';
+  progressText.textContent = '正在生成摘要...';
+  progressCount.textContent = `0/${total}`;
+
+  let done = 0;
+  const batchSize = 5;  // 每批处理 5 篇
+
+  try {
+    while (done < total) {
+      const res = await api(`/articles/summarize-batch?limit=${batchSize}&level=${_summaryLevel}`, { method: 'POST' });
+      const batchDone = res.results ? res.results.length : 0;
+      if (batchDone === 0) break;  // 没有更多待处理的了
+
+      done += batchDone;
+      const pct = Math.min(Math.round((done / total) * 100), 100);
+      progressFill.style.width = pct + '%';
+      progressCount.textContent = `${done}/${total}`;
+      progressText.textContent = `已完成 ${done} 篇...`;
+
+      // 每批完成后刷新卡片
+      loadArticles();
+    }
+
+    progressText.textContent = '全部完成！';
+    progressFill.style.width = '100%';
+    showToast(`批量摘要完成：${done} 篇`, 'success');
+    setTimeout(() => progressContainer.classList.remove('active'), 3000);
+    loadArticles();
+  } catch (e) {
+    progressText.textContent = '摘要出错';
+    showToast('批量摘要失败: ' + e.message, 'error');
+    setTimeout(() => progressContainer.classList.remove('active'), 3000);
+  }
+}
+
+// ──────────── 抓取全部（等待摘要全部完成后刷新） ────────────
+async function fetchAllFeeds() {
+  const btn = document.querySelector('.btn-outline[onclick="fetchAllFeeds()"]');
+  const progressContainer = document.getElementById('progress-container');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressCount = document.getElementById('progress-count');
+
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
+  progressContainer.classList.add('active');
+  progressFill.style.width = '10%';
+  progressText.textContent = '正在抓取文章...';
+  progressCount.textContent = '';
+
+  try {
+    // 第一步：抓取
+    const fetchRes = await api('/feeds/fetch-all?auto_summarize=false', { method: 'POST' });
+    const totalNew = fetchRes.results?.reduce((s, r) => s + (r.new_articles || 0), 0) || 0;
+
+    // 抓取失败提醒
+    const errors = fetchRes.errors || fetchRes.results?.filter(r => r.error) || [];
+    if (errors.length > 0) {
+      const names = errors.map(e => e.feed_title || `ID:${e.feed_id}`).join('、');
+      showToast(`⚠️ ${errors.length} 个源抓取失败：${names}`, 'error');
+    }
+
+    if (totalNew === 0) {
+      progressText.textContent = errors.length ? '抓取失败，没有新文章' : '没有新文章';
+      progressFill.style.width = '100%';
+      if (!errors.length) showToast('没有新文章', 'info');
+      setTimeout(() => progressContainer.classList.remove('active'), 2000);
+      loadArticles();
+      return;
+    }
+
+    // 第二步：分批摘要，直到全部完成
+    progressText.textContent = `抓取到 ${totalNew} 篇新文章，正在生成摘要...`;
+    progressFill.style.width = '20%';
+
+    let done = 0;
+    while (done < totalNew) {
+      const res = await api(`/articles/summarize-batch?limit=5`, { method: 'POST' });
+      const batchDone = res.results?.length || 0;
+      if (batchDone === 0) break;
+      done += batchDone;
+      const pct = 20 + Math.min(Math.round((done / totalNew) * 78), 78);
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `正在生成摘要 ${done}/${totalNew}...`;
+      progressCount.textContent = `${done}/${totalNew}`;
+    }
+
+    progressFill.style.width = '100%';
+    progressText.textContent = `完成！${totalNew} 篇文章已就绪`;
+    showToast(`✅ 抓取并摘要完成，共 ${totalNew} 篇`, 'success');
+    setTimeout(() => progressContainer.classList.remove('active'), 2500);
+    loadArticles();
+
+  } catch (e) {
+    progressText.textContent = '出错了';
+    showToast('抓取失败: ' + e.message, 'error');
+    setTimeout(() => progressContainer.classList.remove('active'), 2000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 抓取全部'; }
+  }
+}
+
+// ──────────── 订阅管理 ────────────
+async function loadFeeds() {
+  const list = document.getElementById('feeds-list');
+  const empty = document.getElementById('feeds-empty');
+
+  try {
+    const feeds = await api('/feeds');
+    list.innerHTML = '';
+
+    if (feeds.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    feeds.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      const safeUrl = escHtml(f.url || '');
+      const safeTitle = escHtml(f.title || '');
+      const safeCat = escHtml(f.category || '');
+      item.innerHTML = `
+        <div class="feed-info">
+          <h3>${safeTitle || '未命名'}</h3>
+          <p>${safeUrl} ${f.category ? `· ${safeCat}` : ''}</p>
+        </div>
+        <div class="feed-actions">
+          <button class="btn btn-outline" onclick="openEditFeed(${f.id}, '${f.url?.replace(/'/g,"\\'")}', '${(f.title||'').replace(/'/g,"\\'")}', '${(f.category||'').replace(/'/g,"\\'")}')">✏️ 编辑</button>
+          <button class="btn btn-outline" onclick="fetchSingleFeed(${f.id})">🔄 抓取</button>
+          <button class="btn btn-danger" onclick="deleteFeed(${f.id})">删除</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  } catch (e) {
+    showToast('加载订阅源失败: ' + e.message, 'error');
+  }
+}
+
+async function addFeed() {
+  const url = document.getElementById('feed-url').value.trim();
+  if (!url) { showToast('请输入 RSS 地址', 'error'); return; }
+
+  const title = document.getElementById('feed-title').value.trim();
+  const category = document.getElementById('feed-category').value.trim();
+
+  try {
+    const res = await api('/feeds', {
+      method: 'POST',
+      body: JSON.stringify({ url, title, category }),
+    });
+    showToast('订阅源添加成功，正在抓取文章...', 'success');
+    document.getElementById('feed-url').value = '';
+    document.getElementById('feed-title').value = '';
+    document.getElementById('feed-category').value = '';
+    loadFeeds();
+
+    // 添加后立即抓取并摘要
+    const feedId = res.feed?.id;
+    if (feedId) {
+      try {
+        const fetchRes = await api(`/feeds/${feedId}/fetch?auto_summarize=false`, { method: 'POST' });
+        const totalNew = fetchRes.result?.new_articles || 0;
+        if (totalNew > 0) {
+          showToast(`抓取到 ${totalNew} 篇文章，正在生成摘要...`, 'info');
+          let done = 0;
+          while (done < totalNew) {
+            const r = await api(`/articles/summarize-batch?limit=5`, { method: 'POST' });
+            const batch = r.results?.length || 0;
+            if (batch === 0) break;
+            done += batch;
+          }
+          showToast(`✅ ${totalNew} 篇文章已就绪`, 'success');
+        } else {
+          showToast('订阅源已添加，没有找到新文章', 'info');
+        }
+      } catch (fetchErr) {
+        showToast('⚠️ 抓取失败：' + fetchErr.message, 'error');
+      }
+    }
+  } catch (e) {
+    showToast('添加失败: ' + e.message, 'error');
+  }
+}
+
+async function deleteFeed(id) {
+  if (!confirm('确定删除这个订阅源及其所有文章吗？')) return;
+  try {
+    await api(`/feeds/${id}`, { method: 'DELETE' });
+    showToast('已删除', 'success');
+    loadFeeds();
+  } catch (e) {
+    showToast('删除失败: ' + e.message, 'error');
+  }
+}
+
+async function fetchSingleFeed(id) {
+  showToast('正在抓取...', 'info');
+  try {
+    // 先抓取
+    const fetchRes = await api(`/feeds/${id}/fetch?auto_summarize=false`, { method: 'POST' });
+    const totalNew = fetchRes.result?.new_articles || 0;
+    if (totalNew === 0) { showToast('没有新文章', 'info'); return; }
+
+    showToast(`抓取到 ${totalNew} 篇，正在生成摘要...`, 'info');
+
+    // 再摘要，循环直到处理完
+    let done = 0;
+    while (done < totalNew) {
+      const res = await api(`/articles/summarize-batch?limit=5`, { method: 'POST' });
+      const batch = res.results?.length || 0;
+      if (batch === 0) break;
+      done += batch;
+    }
+    showToast(`✅ 完成！${totalNew} 篇文章已就绪`, 'success');
+    loadArticles();
+  } catch (e) {
+    showToast('抓取失败: ' + e.message, 'error');
+  }
+}
+
+// ──────────── 编辑订阅源 ────────────
+function openEditFeed(id, url, title, category) {
+  document.getElementById('edit-feed-id').value = id;
+  document.getElementById('edit-feed-url').value = url || '';
+  document.getElementById('edit-feed-title').value = title || '';
+  document.getElementById('edit-feed-category').value = category || '';
+  document.getElementById('edit-modal').classList.add('active');
+}
+
+function closeEditModal(event) {
+  if (event && event.target !== document.getElementById('edit-modal')) return;
+  document.getElementById('edit-modal').classList.remove('active');
+}
+
+async function saveEditFeed() {
+  const id = document.getElementById('edit-feed-id').value;
+  const url = document.getElementById('edit-feed-url').value.trim();
+  const title = document.getElementById('edit-feed-title').value.trim();
+  const category = document.getElementById('edit-feed-category').value.trim();
+  try {
+    await api(`/feeds/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ url, title, category }),
+    });
+    showToast('修改已保存！', 'success');
+    document.getElementById('edit-modal').classList.remove('active');
+    loadFeeds();
+  } catch (e) {
+    showToast('保存失败: ' + e.message, 'error');
+  }
+}
+
+// ──────────── 每日整合报告 ────────────
+async function generateDigest() {
+  const btn = document.querySelector('.btn-success[onclick="generateDigest()"]');
+  const progressContainer = document.getElementById('progress-container');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressCount = document.getElementById('progress-count');
+
+  // 先检查统计
+  let stats;
+  try {
+    stats = await api('/digest/stats');
+    if (stats.total_articles === 0) {
+      showToast('没有已摘要的文章，无法生成整合报告', 'error');
+      return;
+    }
+  } catch (e) {
+    showToast('获取统计失败: ' + e.message, 'error');
+    return;
+  }
+
+  if (!confirm(
+    `生成每日整合报告？\n\n` +
+    `📊 共 ${stats.total_articles} 篇文章\n` +
+    `⏱ 原文阅读：${stats.total_reading_time} 分钟\n` +
+    `📋 整合报告：约 ${stats.digest_reading_time} 分钟\n` +
+    `💡 节省约 ${stats.time_saved} 分钟\n\n` +
+    `AI 将深度阅读所有文章全文进行整合分析，大约需要 20-40 秒。`
+  )) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ AI 阅读中...'; }
+  progressContainer.classList.add('active');
+  progressFill.style.width = '15%';
+  progressText.textContent = 'AI 正在深度阅读所有文章...';
+  progressCount.textContent = `${stats.total_articles} 篇`;
+
+  // 模拟进度动画（实际等待 AI 返回）
+  let fakePct = 15;
+  const fakeTimer = setInterval(() => {
+    if (fakePct < 80) { fakePct += 3; progressFill.style.width = fakePct + '%'; }
+  }, 1200);
+
+  try {
+    const res = await fetch('/digest/html');
+    clearInterval(fakeTimer);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `生成失败 (${res.status})`);
+    }
+
+    progressFill.style.width = '95%';
+    progressText.textContent = '正在打开整合报告...';
+
+    const html = await res.text();
+
+    // 在新标签页打开 HTML 报告
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const newWin = window.open(url, '_blank');
+    if (!newWin) {
+      // 如果弹窗被阻止，提供下载链接
+      const a = document.createElement('a');
+      const today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `Information_Digest_${today}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('报告已下载（请在浏览器打开 .html 文件）', 'info');
+    } else {
+      showToast('📋 整合报告已在新标签页打开，点击"打印/保存为PDF"导出', 'success');
+    }
+
+    progressFill.style.width = '100%';
+    progressText.textContent = '整合报告已生成！';
+    setTimeout(() => { progressContainer.classList.remove('active'); URL.revokeObjectURL(url); }, 4000);
+
+  } catch (e) {
+    clearInterval(fakeTimer);
+    progressText.textContent = '生成失败';
+    showToast('整合报告生成失败：' + e.message, 'error');
+    setTimeout(() => progressContainer.classList.remove('active'), 3000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📋 每日整合'; }
+  }
+}
+
+// ──────────── RSSHub 路由发现 ────────────
+let _rssSearchTimer = null;
+let _currentCat = null;
+
+function debounceRSSSearch(val) {
+  clearTimeout(_rssSearchTimer);
+  _rssSearchTimer = setTimeout(() => searchRSSHub(val), 400);
+}
+
+async function searchRSSHub(query) {
+  const q = query !== undefined ? query : document.getElementById('rsshub-search').value.trim();
+  const resultsEl = document.getElementById('route-results');
+
+  if (!q && !_currentCat) {
+    resultsEl.innerHTML = '<div class="no-results">👆 输入网站名搜索，或点击分类浏览</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div class="no-results">🔍 搜索中...</div>';
+
+  try {
+    let data;
+    if (q) {
+      data = await api(`/rsshub/search?q=${encodeURIComponent(q)}`);
+    } else {
+      const catData = await api('/rsshub/categories');
+      data = { routes: catData[_currentCat] || [] };
+    }
+    renderRouteResults(data.routes || []);
+  } catch (e) {
+    resultsEl.innerHTML = `<div class="no-results">搜索失败：${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderRouteResults(routes) {
+  const el = document.getElementById('route-results');
+  if (!routes.length) {
+    el.innerHTML = '<div class="no-results">没有找到匹配的订阅源，换个关键词试试</div>';
+    return;
+  }
+
+  el.innerHTML = routes.map(route => {
+    // ── 原生 RSS（优先展示，绿色标签，无需 RSSHub）──
+    const nativeItems = (route.native_rss || []).map(nr => {
+      const safeUrl  = escHtml(nr.url);
+      const safeName = escHtml(nr.name);
+      const safeSite = escHtml(route.site);
+      const safeCat  = escHtml(route.category);
+      return `
+        <div class="route-item route-item-native">
+          <div class="route-name">
+            ${safeName}
+            <span class="badge-native">✓ 直连 · 免RSSHub</span>
+          </div>
+          <div class="route-url-preview">${safeUrl}</div>
+          <button class="route-add-btn route-add-native"
+            onclick="addNativeRSS('${safeUrl}','${safeSite} · ${safeName}','${safeCat}')">
+            ＋ 一键订阅
+          </button>
+        </div>`;
+    }).join('');
+
+    // ── RSSHub 路由（需要 RSSHub 实例）──
+    const routeItems = route.routes.map((r, ri) => {
+      const paramInputs = r.params.map(p => `
+        <div class="route-param-row">
+          <label>${escHtml(p.label)}：</label>
+          <input class="route-param-input" id="param_${route.key}_${ri}_${p.key}"
+                 placeholder="${escHtml(p.hint || '')}">
+        </div>
+        <div class="route-hint">💡 ${escHtml(p.hint || '')}</div>
+      `).join('');
+
+      const exampleHtml = r.example
+        ? `<div class="route-example">示例：${escHtml(r.example)}</div>`
+        : '';
+
+      const paramKeys = JSON.stringify(r.params.map(p => p.key));
+      const onAddClick = `addFromRSSHub('${escHtml(route.key)}', ${ri}, '${escHtml(r.path)}', ${paramKeys.replace(/'/g, "\\'")} , '${escHtml(route.site)}', '${escHtml(route.category)}')`;
+
+      return `
+        <div class="route-item">
+          <div class="route-name">
+            ${escHtml(r.name)}
+            <span class="badge-rsshub">RSSHub</span>
+          </div>
+          ${paramInputs}
+          ${exampleHtml}
+          <button class="route-add-btn" onclick="${onAddClick}">＋ 订阅此源</button>
+        </div>`;
+    }).join('');
+
+    if (!nativeItems && !routeItems) return '';
+
+    return `
+      <div class="route-card">
+        <div class="route-card-header">
+          <span class="route-site">${escHtml(route.site)}</span>
+          <span class="route-cat">${escHtml(route.category)}</span>
+        </div>
+        <div class="route-desc">${escHtml(route.description)}</div>
+        <div class="route-list">
+          ${nativeItems}
+          ${routeItems}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function addNativeRSS(url, name, category) {
+  document.getElementById('feed-url').value = url;
+  document.getElementById('feed-title').value = name;
+  document.getElementById('feed-category').value = category;
+  showToast('正在添加 ' + name + '...', 'info');
+  await addFeed();
+}
+
+async function loadRSSHubCategories() {
+  try {
+    const data = await api('/rsshub/search?q=');
+    const cats = [...new Set((data.routes || []).map(r => r.category))];
+    const tabsEl = document.getElementById('cat-tabs');
+    tabsEl.innerHTML = cats.map(c =>
+      `<button class="cat-tab" onclick="filterByCategory('${escHtml(c)}', this)">${escHtml(c)}</button>`
+    ).join('');
+  } catch (e) { /* silent */ }
+}
+
+async function filterByCategory(cat, btn) {
+  _currentCat = cat;
+  document.getElementById('rsshub-search').value = '';
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  await searchRSSHub('');
+}
+
+async function addFromRSSHub(routeKey, routeIdx, pathTemplate, paramKeys, siteName, category) {
+  // 收集参数值
+  const params = {};
+  let missing = false;
+  for (const key of paramKeys) {
+    const inputEl = document.getElementById(`param_${routeKey}_${routeIdx}_${key}`);
+    const val = inputEl ? inputEl.value.trim() : '';
+    if (!val) { missing = true; inputEl && (inputEl.style.border = '2px solid var(--danger)'); break; }
+    params[key] = val;
+    if (inputEl) inputEl.style.border = '';
+  }
+  if (missing) { showToast('请填写必填参数', 'error'); return; }
+
+  // 通过后端 build-url 接口生成 URL（自动使用配置的 RSSHUB_BASE，不硬编码 rsshub.app）
+  let fullUrl;
+  try {
+    const data = await api('/rsshub/build-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: pathTemplate, params }),
+    });
+    fullUrl = data.url;
+  } catch (e) {
+    showToast('生成 URL 失败：' + e.message, 'error');
+    return;
+  }
+
+  // 填入手动添加表单并自动提交
+  document.getElementById('feed-url').value = fullUrl;
+  document.getElementById('feed-title').value = siteName;
+  document.getElementById('feed-category').value = category;
+  showToast('正在添加 ' + siteName + '...', 'info');
+  await addFeed();
+}
+
+// ──────────── 工具函数 ────────────
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+// ════════════════════════════════
+//  向导（Onboarding Wizard）逻辑
+// ════════════════════════════════
+const WIZARD_STEPS = 5;
+let _wizardStep = 1;
+let _selectedProfession = '';
+let _recommendData = null;   // AI 返回的推荐结果
+let _selectedFeeds = [];     // 用户勾选的 feed
+
+function wizardUpdateProgress() {
+  const dots = document.getElementById('wizard-progress');
+  dots.innerHTML = Array.from({ length: WIZARD_STEPS - 1 }, (_, i) => {
+    const n = i + 1;
+    const cls = n < _wizardStep ? 'done' : n === _wizardStep ? 'active' : '';
+    return `<div class="wizard-dot ${cls}"></div>`;
+  }).join('');
+}
+
+function wizardShowStep(n) {
+  _wizardStep = n;
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('step-' + n);
+  if (el) el.classList.add('active');
+  wizardUpdateProgress();
+
+  const backBtn = document.getElementById('wizard-back');
+  const nextBtn = document.getElementById('wizard-next');
+  const footer  = document.getElementById('wizard-footer');
+
+  backBtn.style.visibility = n > 1 ? 'visible' : 'hidden';
+
+  if (n === WIZARD_STEPS) {
+    // 推荐结果页：变成"订阅选中的源"按钮
+    nextBtn.textContent = '✅ 订阅选中的源';
+    nextBtn.onclick = wizardSubscribe;
+    nextBtn.disabled = false;
+    footer.querySelector('.wizard-skip').style.display = 'none';
+  } else {
+    nextBtn.textContent = n === WIZARD_STEPS - 1 ? '生成专属推荐 ✨' : '下一步 →';
+    nextBtn.onclick = wizardNext;
+    footer.querySelector('.wizard-skip').style.display = '';
+  }
+  wizardValidate();
+}
+
+function wizardValidate() {
+  const nextBtn = document.getElementById('wizard-next');
+  if (_wizardStep === 1) {
+    nextBtn.disabled = !document.getElementById('w-name').value.trim();
+  } else if (_wizardStep === 2) {
+    const custom = document.getElementById('w-profession-custom').value.trim();
+    nextBtn.disabled = !_selectedProfession && !custom;
+  } else {
+    nextBtn.disabled = false;
+  }
+}
+
+function wizardBack() {
+  if (_wizardStep > 1) wizardShowStep(_wizardStep - 1);
+}
+
+async function wizardNext() {
+  if (_wizardStep < WIZARD_STEPS - 1) {
+    wizardShowStep(_wizardStep + 1);
+  } else if (_wizardStep === WIZARD_STEPS - 1) {
+    // 最后填写步 → 先保存画像，再生成推荐
+    await wizardSaveAndRecommend();
+  }
+}
+
+function wizardSkip() {
+  wizardClose();
+}
+
+async function wizardSaveAndRecommend() {
+  const name       = document.getElementById('w-name').value.trim();
+  const profession = _selectedProfession || document.getElementById('w-profession-custom').value.trim();
+  const interests  = Array.from(document.querySelectorAll('#interest-chips .chip.selected')).map(c => c.textContent.trim());
+  const goals      = Array.from(document.querySelectorAll('#goal-chips .chip.selected')).map(c => c.textContent.trim());
+  const customNote = document.getElementById('w-custom-note').value.trim();
+
+  // 保存画像到后端
+  try {
+    await api('/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, profession, interests, goals, custom_note: customNote }),
+    });
+  } catch(e) { /* 非阻塞，继续走推荐 */ }
+
+  // 切到推荐结果页，显示 loading
+  wizardShowStep(WIZARD_STEPS);
+  document.getElementById('recommend-loading').style.display = 'block';
+  document.getElementById('recommend-result').style.display = 'none';
+  document.getElementById('wizard-next').disabled = true;
+
+  try {
+    const data = await api('/profile/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, profession, interests, goals, custom_note: customNote }),
+    });
+    _recommendData = data;
+    renderRecommendResult(data);
+  } catch(e) {
+    document.getElementById('recommend-loading').innerHTML =
+      '<p style="color:var(--danger)">推荐生成失败：' + escHtml(e.message) + '</p>';
+  }
+}
+
+function renderRecommendResult(data) {
+  document.getElementById('recommend-loading').style.display = 'none';
+  document.getElementById('recommend-result').style.display = 'block';
+  document.getElementById('recommend-greeting').textContent = data.greeting || '为你精选了以下订阅源：';
+
+  const bundlesEl = document.getElementById('recommend-bundles');
+  _selectedFeeds = [];
+
+  bundlesEl.innerHTML = (data.bundles || []).map((bundle, bi) => {
+    const feeds = bundle.feeds || [];
+    const feedsHtml = feeds.map((f, fi) => {
+      const id = 'rf-' + bi + '-' + fi;
+      // 默认全选
+      _selectedFeeds.push({ url: f.url, name: f.name });
+      return `
+        <div class="recommend-feed-item checked" id="${id}"
+             onclick="toggleRecommendFeed('${id}', '${escHtml(f.url)}', '${escHtml(f.name)}')">
+          <div class="recommend-feed-check">✓</div>
+          <div>
+            <div class="recommend-feed-name">${escHtml(f.name)}</div>
+            <div class="recommend-feed-reason">${escHtml(f.reason || '')}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="recommend-bundle">
+        <div class="recommend-bundle-title">
+          📂 ${escHtml(bundle.group)}
+          <span class="recommend-select-all" onclick="toggleBundleAll(${bi}, this)">取消全选</span>
+        </div>
+        <div class="recommend-bundle-reason">${escHtml(bundle.reason || '')}</div>
+        <div class="recommend-feed-list" id="bundle-${bi}">${feedsHtml}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('wizard-next').disabled = false;
+}
+
+function toggleRecommendFeed(id, url, name) {
+  const el = document.getElementById(id);
+  el.classList.toggle('checked');
+  if (el.classList.contains('checked')) {
+    if (!_selectedFeeds.find(f => f.url === url)) _selectedFeeds.push({ url, name });
+    el.querySelector('.recommend-feed-check').textContent = '✓';
+  } else {
+    _selectedFeeds = _selectedFeeds.filter(f => f.url !== url);
+    el.querySelector('.recommend-feed-check').textContent = '';
+  }
+}
+
+function toggleBundleAll(bi, btn) {
+  const container = document.getElementById('bundle-' + bi);
+  const items = container.querySelectorAll('.recommend-feed-item');
+  const allChecked = Array.from(items).every(i => i.classList.contains('checked'));
+  items.forEach(item => {
+    const url = item.onclick.toString().match(/'([^']+)'/)?.[1] || '';
+    const name = item.querySelector('.recommend-feed-name')?.textContent || '';
+    if (allChecked) {
+      item.classList.remove('checked');
+      item.querySelector('.recommend-feed-check').textContent = '';
+      _selectedFeeds = _selectedFeeds.filter(f => f.url !== url);
+    } else {
+      item.classList.add('checked');
+      item.querySelector('.recommend-feed-check').textContent = '✓';
+      if (url && !_selectedFeeds.find(f => f.url === url)) _selectedFeeds.push({ url, name });
+    }
+  });
+  btn.textContent = allChecked ? '全选' : '取消全选';
+}
+
+async function wizardSubscribe() {
+  if (!_selectedFeeds.length) { wizardClose(); return; }
+  const btn = document.getElementById('wizard-next');
+  btn.disabled = true;
+  btn.textContent = '正在订阅...';
+
+  let ok = 0;
+  for (const feed of _selectedFeeds) {
+    try {
+      await api('/feeds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: feed.url, title: feed.name, category: '推荐' }),
+      });
+      ok++;
+    } catch(e) { /* 已存在则跳过 */ }
+  }
+
+  showToast('已订阅 ' + ok + ' 个推荐订阅源！正在抓取内容…', 'success');
+  wizardClose();
+
+  // 立即触发抓取
+  try { await api('/feeds/fetch-all', { method: 'POST' }); } catch(e) {}
+  loadArticles();
+  updateFeedFilters();
+}
+
+function wizardClose() {
+  const overlay = document.getElementById('wizard-overlay');
+  overlay.classList.add('fade-out');
+  setTimeout(() => { overlay.style.display = 'none'; }, 500);
+}
+
+function selectProfession(chip) {
+  document.querySelectorAll('#profession-chips .chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+  _selectedProfession = chip.textContent.trim();
+  document.getElementById('w-profession-custom').value = '';
+  wizardValidate();
+}
+
+function toggleChip(chip) {
+  chip.classList.toggle('selected');
+}
+
+// ────────────── 检测是否需要弹向导 ──────────────
+async function checkShowWizard() {
+  try {
+    const data = await api('/profile');
+    if (!data.profile) {
+      // 无用户画像 → 显示向导
+      wizardShowStep(1);
+      document.getElementById('wizard-overlay').style.display = 'flex';
+      wizardUpdateProgress();
+    }
+  } catch(e) { /* 静默，不阻断主界面加载 */ }
+}
+
+// ──────────── 初始化 ────────────
+loadArticles();
+loadRSSHubCategories();
+checkShowWizard();
+</script>
+
+</body>
+</html>
