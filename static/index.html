@@ -1020,7 +1020,7 @@ async function loadArticles() {
         </div>
         <div class="card-title">${escHtml(displayTitle || '无标题')}${paywallBadge}</div>
         ${hasTranslation ? `<div style="font-size:11px;color:var(--text-light);margin:-4px 0 6px;opacity:0.7">${escHtml(a.title)}</div>` : ''}
-        <div class="card-summary">${escHtml(a.ai_summary_zh || a.summary || '')}</div>
+        <div class="card-summary">${escHtml(a.ai_summary_zh || stripHtml(a.summary || ''))}</div>
         <div class="card-footer">
           <div class="card-keywords">
             ${keywords.map(k => `<span>${escHtml(k.trim())}</span>`).join('')}
